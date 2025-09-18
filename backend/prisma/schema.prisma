@@ -13,3 +13,33 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model ResearchJob {
+  id        String   @id @default(cuid())
+  topic     String
+  status    Status   @default(PENDING)
+  result    Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  JobLog JobLog[]
+
+  @@index([status])
+}
+
+model JobLog {
+  id        String   @id @default(cuid())
+  message   String
+  step      String?
+  timestamp DateTime @default(now())
+
+  jobId String
+  job   ResearchJob @relation(fields: [jobId], references: [id])
+}
+
+enum Status {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
