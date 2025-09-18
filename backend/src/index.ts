@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 
+import researchRouter from "./routes/research.route";
+
 dotenv.config();
 
 const app = express();
@@ -15,6 +17,8 @@ app.get("/", (req, res) => {
     success: "true",
   });
 });
+
+app.use("/api/v1", researchRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on Port: ${PORT}`);
