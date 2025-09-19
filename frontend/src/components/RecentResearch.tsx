@@ -74,7 +74,7 @@ const RecentResearch = () => {
                         : "text-gray-600"
                     }
                   >
-                    {`Status: ${item.status || "Unknown"}`}
+                    {item.status || "Unknown"}
                   </Button>
                   <Button variant={"outline"}>
                     <Link href={`/research/${item.id}`}>
