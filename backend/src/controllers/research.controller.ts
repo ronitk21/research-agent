@@ -1,6 +1,6 @@
 import { type Response, type Request } from "express";
 import { researchTopicSchema } from "../lib/schema";
-import z from "zod";
+import z, { success } from "zod";
 import prisma from "../lib/prisma";
 
 export const newTopicResearch = async (req: Request, res: Response) => {
@@ -33,6 +33,29 @@ export const newTopicResearch = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllResearch = () => {};
+export const getAllResearch = async (req: Request, res: Response) => {
+  try {
+    const allSearch = await prisma.researchJob.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        topic: true,
+        status: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: allSearch,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Failed to fetch research jobs",
+    });
+  }
+};
 
 export const getSpecificResearch = () => {};
