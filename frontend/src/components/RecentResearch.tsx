@@ -6,10 +6,13 @@ import { ExternalLinkIcon } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
 
+// TODO: Use skeleton loader or spinner instead of loading.
+// TODO: Fix link button, Button should be nested inside link.
+
 interface ResearchItem {
   id: string;
   topic: string;
-  status: string;
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 }
 
 const RecentResearch = () => {
@@ -20,11 +23,10 @@ const RecentResearch = () => {
     const fetchRecentSearches = async () => {
       try {
         const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}api/v1/research`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/v1/research`
         );
 
         if (!data) throw new Error("Cannot Reach Backend");
-        console.log("API Response:", data);
         setRecentSearches(data.data || []);
       } catch (error) {
         console.error("Error fetching recent searches:", error);
@@ -76,11 +78,12 @@ const RecentResearch = () => {
                   >
                     {item.status || "Unknown"}
                   </Button>
-                  <Button variant={"outline"}>
-                    <Link href={`/research/${item.id}`}>
-                      <ExternalLinkIcon size={16} />
-                    </Link>
-                  </Button>
+
+                  <Link href={`/research/${item.id}`}>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                      <ExternalLinkIcon className="h-3 w-3" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             );
