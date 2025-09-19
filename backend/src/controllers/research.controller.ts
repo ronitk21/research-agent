@@ -58,4 +58,32 @@ export const getAllResearch = async (req: Request, res: Response) => {
   }
 };
 
-export const getSpecificResearch = () => {};
+export const getSpecificResearch = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const research = await prisma.researchJob.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        JobLog: {
+          orderBy: { timestamp: "asc" },
+        },
+      },
+    });
+
+    if (!research) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Research not found" });
+    }
+
+    return res.json({ success: true, data: research });
+  } catch (error) {
+    console.error("Error fetching research:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
