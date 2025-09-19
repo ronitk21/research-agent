@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+import { toast } from "sonner";
 
 const inputSchema = z.object({
   topic: z.string().min(1, "Enter a valid topic"),
@@ -32,20 +33,26 @@ export default function ResearchForm() {
 
   function onSubmit(values: z.infer<typeof inputSchema>) {
     startTransition(async () => {
-      try {
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}api/v1/research`,
-          values
-        );
-
-        console.log(data);
-
-        form.reset(); // reset after success
-        // TODO: show toast instead of console.log
-      } catch (error) {
-        console.error(error);
-        // TODO: replace with toast
-      }
+      axios
+        .post(`${process.env.NEXT_PUBLIC_API_URL}api/v1/research`, values)
+        .then(() => {
+          form.reset();
+          toast.success("Research started successfully!");
+        })
+        .catch((error) => {
+          if (axios.isAxiosError(error)) {
+            if (error.response) {
+              toast.error(error.response.data.message || "Server error");
+            } else if (error.request) {
+              toast.error("Server not reachable.");
+            } else {
+              toast.error("Unexpected error occurred");
+            }
+          } else {
+            console.error("❌ Unknown error:", error);
+            toast.error("Unexpected error occurred");
+          }
+        });
     });
   }
 

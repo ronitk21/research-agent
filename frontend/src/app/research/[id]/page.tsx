@@ -87,7 +87,7 @@ const SpecificResearchTopic = async ({
         <div className="border-border bg-secondary rounded-lg border p-6 space-y-4">
           <div className="flex items-start justify-between">
             <div className="flex flex-col items-start">
-              <h2 className="text-2xl font-semibold text-foreground capitalize">
+              <h2 className="text-xl font-semibold text-foreground capitalize">
                 {`Topic: ${research.topic}`}
               </h2>
               <span className="text-sm">{`Id: ${research.id}`}</span>
@@ -237,8 +237,8 @@ const SpecificResearchTopic = async ({
               Research Not Found
             </h3>
             <p className="text-muted-foreground">
-              The research with ID `${id}` could not be found or there was an
-              error loading it.
+              The research with ID {id} could not be found or there was an error
+              loading it.
             </p>
           </div>
         </div>
