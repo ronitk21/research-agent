@@ -2,6 +2,7 @@ import { type Response, type Request } from "express";
 import { researchTopicSchema } from "../lib/schema";
 import z, { success } from "zod";
 import prisma from "../lib/prisma";
+import { researchQueue } from "../lib/queue";
 
 export const newTopicResearch = async (req: Request, res: Response) => {
   const { data, success } = researchTopicSchema.safeParse(req.body);
@@ -24,10 +25,16 @@ export const newTopicResearch = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(202).json(newJob);
+    await researchQueue.add("process-research", { jobId: newJob.id });
+
+    res.status(202).json({
+      success: true,
+      data: newJob,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
+      success: false,
       error: "Failed to create job",
     });
   }
@@ -53,6 +60,7 @@ export const getAllResearch = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
+      success: false,
       error: "Failed to fetch research jobs",
     });
   }

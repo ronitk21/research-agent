@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 
 import researchRouter from "./routes/research.route";
+import "./workers/researchWorker";
 
 dotenv.config();
 
