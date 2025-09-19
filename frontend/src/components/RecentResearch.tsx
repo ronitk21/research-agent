@@ -19,13 +19,13 @@ const RecentResearch = () => {
   useEffect(() => {
     const fetchRecentSearches = async () => {
       try {
-        const response = await axios.get(
+        const { data } = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}api/v1/research`
         );
 
-        if (!response) throw new Error("Cannot Reach Backend");
-        console.log("API Response:", response.data);
-        setRecentSearches(response.data.data || []);
+        if (!data) throw new Error("Cannot Reach Backend");
+        console.log("API Response:", data);
+        setRecentSearches(data.data || []);
       } catch (error) {
         console.error("Error fetching recent searches:", error);
         setRecentSearches([]);
