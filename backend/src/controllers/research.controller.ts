@@ -1,23 +1,26 @@
 import { type Response, type Request } from "express";
+import z from "zod";
+
 import { researchTopicSchema } from "../lib/schema";
-import z, { success } from "zod";
 import prisma from "../lib/prisma";
 import { researchQueue } from "../lib/queue";
+import asyncHandler from "../lib/asyncHandler";
+import ApiError from "../lib/ApiError";
+import ApiResponse from "../lib/ApiResponse";
 
-export const newTopicResearch = async (req: Request, res: Response) => {
-  const { data, success } = researchTopicSchema.safeParse(req.body);
+export const newTopicResearch = asyncHandler(
+  async (req: Request, res: Response) => {
+    const parsed = researchTopicSchema.safeParse(req.body);
 
-  if (!success) {
-    return res.status(400).json({
-      success: false,
-      errors: z.treeifyError,
-      message: "Invalid Topic",
-    });
-  }
+    if (!parsed.success) {
+      const errors = parsed.error.issues.map(
+        (err) => `${err.path.join(".")}: ${err.message}`
+      );
+      throw new ApiError(400, "Invalid input data", errors);
+    }
 
-  const { topic } = data;
+    const { topic } = parsed.data;
 
-  try {
     const newJob = await prisma.researchJob.create({
       data: {
         topic,
@@ -26,22 +29,14 @@ export const newTopicResearch = async (req: Request, res: Response) => {
     });
 
     await researchQueue.add("process-research", { jobId: newJob.id });
-
-    res.status(202).json({
-      success: true,
-      data: newJob,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to create job",
-    });
+    res
+      .status(202)
+      .json(new ApiResponse(202, newJob, "Research job created successfully"));
   }
-};
+);
 
-export const getAllResearch = async (req: Request, res: Response) => {
-  try {
+export const getAllResearch = asyncHandler(
+  async (req: Request, res: Response) => {
     const allSearch = await prisma.researchJob.findMany({
       orderBy: {
         createdAt: "desc",
@@ -50,26 +45,26 @@ export const getAllResearch = async (req: Request, res: Response) => {
         id: true,
         topic: true,
         status: true,
+        createdAt: true,
       },
     });
 
-    res.status(200).json({
-      success: true,
-      data: allSearch,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      error: "Failed to fetch research jobs",
-    });
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, allSearch, "Research jobs fetched successfully.")
+      );
   }
-};
+);
 
-export const getSpecificResearch = async (req: Request, res: Response) => {
-  const { id } = req.params;
+export const getSpecificResearch = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-  try {
+    if (!id || id.trim() === "") {
+      throw new ApiError(400, "Research ID is required");
+    }
+
     const research = await prisma.researchJob.findUnique({
       where: {
         id,
@@ -82,16 +77,13 @@ export const getSpecificResearch = async (req: Request, res: Response) => {
     });
 
     if (!research) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Research not found" });
+      throw new ApiError(404, "Research job not found");
     }
 
-    return res.json({ success: true, data: research });
-  } catch (error) {
-    console.error("Error fetching research:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, research, "Research job fetched successfully")
+      );
   }
-};
+);
