@@ -2,12 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 import { ExternalLinkIcon } from "lucide-react";
 import axios from "axios";
 import Link from "next/link";
-
-// TODO: Use skeleton loader or spinner instead of loading.
-// TODO: Fix link button, Button should be nested inside link.
 
 interface ResearchItem {
   id: string;
@@ -43,7 +41,23 @@ const RecentResearch = () => {
     return (
       <div className="w-full sm:w-4/5 lg:w-full text-left mt-10 flex flex-col gap-4">
         <h1 className="text-2xl tracking-tighter font-bold">Recent Research</h1>
-        <div>Loading...</div>
+        <div className="flex flex-col gap-4">
+          {[...Array(3)].map((_, index) => (
+            <div
+              key={index}
+              className="border-border bg-secondary/10 rounded-md border py-4 px-7 flex items-center justify-between"
+            >
+              <div className="flex flex-col items-start gap-2">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <div className="flex justify-between items-center gap-2">
+                <Skeleton className="h-8 w-20" />
+                <Skeleton className="h-8 w-8" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
