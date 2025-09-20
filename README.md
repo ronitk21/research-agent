@@ -14,28 +14,6 @@ An intelligent research automation system that uses AI to gather, analyze, and s
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   Worker        │
-│   (Next.js)     │◄──►│   (Express)     │◄──►│   (BullMQ)      │
-│                 │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │                       ▼                       ▼
-         │              ┌─────────────────┐    ┌─────────────────┐
-         │              │   PostgreSQL    │    │     Redis       │
-         │              │   (Database)    │    │    (Queue)      │
-         │              └─────────────────┘    └─────────────────┘
-         │
-         ▼
-┌─────────────────┐
-│  External APIs  │
-│ • OpenAI        │
-│ • News API      │
-│ • Hacker News   │
-│ • Wikipedia     │
-└─────────────────┘
-```
 
 
 ## 🚀 Quick Start
@@ -50,7 +28,7 @@ An intelligent research automation system that uses AI to gather, analyze, and s
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/your-username/research-agent.git
+git clone https://github.com/ronitk21/research-agent.git
 cd research-agent
 ```
 
@@ -115,9 +93,8 @@ bun run worker
 
 ### 5. Access the Application
 
-- **Frontend**: http://localhost:3001
+- **Frontend**: https://research-agent-five.vercel.app/
 - **Backend API**: http://localhost:3000
-- **API Documentation**: http://localhost:3000/api/v1/research
 
 ## 📖 API Documentation
 
@@ -288,44 +265,6 @@ redis-cli monitor
 docker-compose logs worker
 ```
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow TypeScript best practices
-- Write meaningful commit messages
-- Test your changes thoroughly
-- Update documentation as needed
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [OpenAI](https://openai.com/) for powerful language models
-- [News API](https://newsapi.org/) for news data
-- [Hacker News API](https://github.com/HackerNews/API) for tech discussions
-- [Wikipedia API](https://www.mediawiki.org/wiki/API:Main_page) for encyclopedia content
-- [Next.js](https://nextjs.org/) for the frontend framework
-- [Express.js](https://expressjs.com/) for the backend API
-- [Prisma](https://prisma.io/) for database management
-- [BullMQ](https://bullmq.io/) for job queue management
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. Check the [Issues](https://github.com/your-username/research-agent/issues) page
-2. Create a new issue with detailed information
-3. Join our community discussions
-
----
-
-**Built with ❤️ using modern web technologies**
