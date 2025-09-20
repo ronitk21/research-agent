@@ -104,7 +104,7 @@ ehthumbs.db
 Thumbs.db
 
 # Docker
-.dockerignore
+# .dockerignore files should be tracked in git
 
 # Prisma generated files (will be generated on build)
 backend/src/generated/
