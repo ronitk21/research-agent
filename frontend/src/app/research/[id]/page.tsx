@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, use } from "react";
+import React, { use } from "react";
 import Link from "next/link";
 import axios from "axios";
 import {
@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useSWR from "swr";
 
 interface JobLog {
   id: string;
@@ -49,34 +50,38 @@ interface SpecificResearchTopicProps {
   params: Promise<{ id: string }>;
 }
 
+const fetcher = async (url: string) => {
+  const { data } = await axios.get(url, { timeout: 10000 });
+  return data.data;
+};
+
 const SpecificResearchTopic = ({ params }: SpecificResearchTopicProps) => {
   const { id } = use(params);
 
-  const [research, setResearch] = useState<ResearchData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: research,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR<ResearchData>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/v1/research/${id}`,
+    fetcher,
+    {
+      refreshInterval: (data) => {
+        if (!data) return 0;
+        return data.status === "PENDING" || data.status === "PROCESSING"
+          ? 2000
+          : 0;
+      },
 
-  const fetchResearchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/research/${id}`,
-        { timeout: 10000 }
-      );
-      setResearch(data.data);
-    } catch (err) {
-      console.error("Error fetching research:", err);
-      setError("Failed to load research data");
-    } finally {
-      setLoading(false);
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 1000,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000,
+      keepPreviousData: true,
     }
-  }, [id]);
-
-  useEffect(() => {
-    fetchResearchData();
-  }, [fetchResearchData]);
+  );
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -104,7 +109,7 @@ const SpecificResearchTopic = ({ params }: SpecificResearchTopicProps) => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="w-full max-w-4xl mx-auto p-4 space-y-6 ">
         <div className="flex items-center justify-between">
@@ -157,7 +162,7 @@ const SpecificResearchTopic = ({ params }: SpecificResearchTopicProps) => {
               {error || `The research with ID "${id}" could not be found.`}
             </p>
             <div className="flex gap-2 justify-center mt-4">
-              <Button onClick={fetchResearchData} variant="outline">
+              <Button onClick={() => mutate()} variant="outline">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Try Again
               </Button>
@@ -181,13 +186,13 @@ const SpecificResearchTopic = ({ params }: SpecificResearchTopicProps) => {
           </Button>
         </Link>
         <Button
-          onClick={fetchResearchData}
+          onClick={() => mutate()}
           variant="outline"
           size="sm"
-          disabled={loading}
+          disabled={isLoading}
         >
           <RefreshCw
-            className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+            className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
           />
           Refresh
         </Button>
