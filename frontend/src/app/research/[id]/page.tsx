@@ -32,7 +32,6 @@ interface Article {
   summary: string;
   url: string;
   source: string;
-  relevanceScore: number;
   keywords?: string[];
 }
 
@@ -268,9 +267,6 @@ const SpecificResearchTopic = ({ params }: SpecificResearchTopicProps) => {
                           {article.title}
                         </h3>
                         <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                            {article.relevanceScore}/10
-                          </span>
                           <a
                             href={article.url}
                             target="_blank"
